@@ -83,6 +83,8 @@ def fetch_apple_music(url: str) -> dict:
     artist = track.get("artistName", "")
     album = track.get("collectionName", "")
     artwork = track.get("artworkUrl100", "").replace("100x100", "600x600")
+    millis = track.get("trackTimeMillis")
+    duration = int(millis / 1000) if millis else None
 
     # Build embed URL
     if track_id and album_id:
@@ -100,6 +102,7 @@ def fetch_apple_music(url: str) -> dict:
         "album": album,
         "artwork_url": artwork,
         "embed_url": embed,
+        "duration_seconds": duration,
         "source": "apple",
     }
 
@@ -107,6 +110,18 @@ def fetch_apple_music(url: str) -> dict:
 # ---------------------------------------------------------------------------
 # Bandcamp
 # ---------------------------------------------------------------------------
+
+def _parse_iso_duration(s: str) -> int | None:
+    """Parse ISO 8601 duration like PT3M45S into total seconds."""
+    if not s:
+        return None
+    m = re.match(r'PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?', s)
+    if not m:
+        return None
+    h, mins, secs = (int(x) if x else 0 for x in m.groups())
+    total = h * 3600 + mins * 60 + secs
+    return total if total > 0 else None
+
 
 def _bandcamp_embed_url(url: str, track_id: str | None, album_id: str | None) -> str:
     if track_id:
@@ -129,6 +144,7 @@ def fetch_bandcamp(url: str) -> dict:
     # ---- Try JSON-LD (most reliable) ----
     title, artist, album = og_title, og_site, ""
     track_id = album_id = None
+    duration = None
 
     for script in soup.find_all("script", type="application/ld+json"):
         try:
@@ -142,6 +158,7 @@ def fetch_bandcamp(url: str) -> dict:
                 artist = by_artist.get("name", artist) if isinstance(by_artist, dict) else artist
                 in_album = ld.get("inAlbum", {})
                 album = in_album.get("name", "") if isinstance(in_album, dict) else ""
+                duration = _parse_iso_duration(ld.get("duration", ""))
         except (json.JSONDecodeError, AttributeError):
             pass
 
@@ -192,6 +209,7 @@ def fetch_bandcamp(url: str) -> dict:
         "album": album or "",
         "artwork_url": og_image or "",
         "embed_url": embed,
+        "duration_seconds": duration,
         "source": "bandcamp",
     }
 

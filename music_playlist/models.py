@@ -38,6 +38,7 @@ class Track(db.Model):
     album = db.Column(db.String(300), default="")
     artwork_url = db.Column(db.String(500), default="")
     embed_url = db.Column(db.String(500), default="")
+    duration_seconds = db.Column(db.Integer, nullable=True)
     position = db.Column(db.Integer, default=0)
     added_at = db.Column(db.DateTime, default=datetime.utcnow)
     note = db.Column(db.Text, default="")

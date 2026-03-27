@@ -14,6 +14,20 @@ app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "dev-secret-change-me")
 db.init_app(app)
 
 
+def _format_duration(seconds):
+    """Convert total seconds to H:MM:SS or M:SS string."""
+    if seconds is None:
+        return ""
+    seconds = int(seconds)
+    h, rem = divmod(seconds, 3600)
+    m, s = divmod(rem, 60)
+    if h:
+        return f"{h}:{m:02d}:{s:02d}"
+    return f"{m}:{s:02d}"
+
+app.jinja_env.filters["duration"] = _format_duration
+
+
 with app.app_context():
     db.create_all()
 
@@ -126,6 +140,7 @@ def add_track(slug):
         album=meta["album"],
         artwork_url=meta["artwork_url"],
         embed_url=meta["embed_url"],
+        duration_seconds=meta.get("duration_seconds"),
         position=max_pos + 1,
         note=note,
     )

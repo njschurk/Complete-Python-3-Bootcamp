@@ -339,6 +339,32 @@ details[open] .embed-toggle summary::before,
 .embed-toggle[open] summary::before { content: '▼ '; }
 .embed-container { margin-top: 0.75rem; }
 
+/* ===== Track duration ===== */
+.track-duration {
+  margin-left: 0.5rem;
+  color: var(--text-muted);
+  font-size: 0.78rem;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ===== Runtime bar ===== */
+.runtime-bar {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-top: 1.25rem;
+  padding: 0.75rem 1rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+.runtime-bar__count { font-weight: 500; color: var(--text); }
+.runtime-bar__total strong { color: var(--text); }
+.runtime-bar__note { font-size: 0.78rem; opacity: 0.7; }
+
 /* ===== Responsive ===== */
 @media (max-width: 520px) {
   .site-header { padding: 0.75rem 1rem; }

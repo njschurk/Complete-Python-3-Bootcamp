@@ -65,7 +65,7 @@
           {% if track.source == 'apple' %}Apple Music{% else %}Bandcamp{% endif %}
         </span>
       </div>
-      {% if track.artist %}<p class="track-artist">{{ track.artist }}{% if track.album %} &mdash; {{ track.album }}{% endif %}</p>{% endif %}
+      {% if track.artist %}<p class="track-artist">{{ track.artist }}{% if track.album %} &mdash; {{ track.album }}{% endif %}{% if track.duration_seconds %}<span class="track-duration">{{ track.duration_seconds | duration }}</span>{% endif %}</p>{% endif %}
       {% if track.note %}<p class="track-note">"{{ track.note }}"</p>{% endif %}
 
       {% if track.embed_url %}
@@ -104,6 +104,17 @@
   </li>
   {% endfor %}
 </ol>
+{% set timed_tracks = playlist.tracks | selectattr("duration_seconds") | list %}
+{% if timed_tracks | length > 0 %}
+{% set total_seconds = timed_tracks | sum(attribute="duration_seconds") %}
+<div class="runtime-bar">
+  <span class="runtime-bar__count">{{ playlist.tracks | length }} track{% if playlist.tracks | length != 1 %}s{% endif %}</span>
+  <span class="runtime-bar__total">total runtime: <strong>{{ total_seconds | duration }}</strong></span>
+  {% if timed_tracks | length < playlist.tracks | length %}
+  <span class="runtime-bar__note">({{ playlist.tracks | length - timed_tracks | length }} track{% if playlist.tracks | length - timed_tracks | length != 1 %}s{% endif %} without duration data)</span>
+  {% endif %}
+</div>
+{% endif %}
 {% else %}
 <p class="empty-state">No tracks yet. Add your first one above!</p>
 {% endif %}
